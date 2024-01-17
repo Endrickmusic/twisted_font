@@ -2,7 +2,7 @@ import './styles.css'
 import React, { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { useControls, Leva } from 'leva'
-import MyText from './TwistedText'
+import TwistedText from './TwistedText.jsx'
 import { Instance, OrbitControls, Instances, Stats, Environment, Lightformer } from '@react-three/drei'
 
 const Grid = ({ number = 23, lineWidth = 0.026, height = 0.5 }) => (
@@ -24,14 +24,18 @@ const Grid = ({ number = 23, lineWidth = 0.026, height = 0.5 }) => (
 
 function App() {
   const config = useControls('Text', {
-    text: 'HELLO,HELLO,',
-    color: '#f60',
+    text: '  Christian Hohenbild  ',
+    color: '#ffdc00',
     fontSize: { value: 1, min: 0.1, max: 2 },
-    fontDepth: { value: 0.5, min: 0.01, max: 3.5 },
-    uRadius: { value: 1.5, min: 0.1, max: 3 },
-    uTwists: { value: 1, min: 0, max: 3, step: 1 },
-    uTwistSpeed: { value: 35, min: 0, max: 100, step: 1 },
-    uRotateSpeed: { value: 0.5, min: 0, max: 3, step: 0.01 }
+    fontDepth: { value: 0.03, min: 0.01, max: 3.5 },
+    uRadius: { value: 2.1, min: 0.1, max: 3 },
+    uTwists: { value: 1, min: 0, max: 3, step: 0.01 },
+    rotation: { value: 1.55, min: 0, max: 2*Math.PI, step: 0.05 },
+    uRotateSpeed: { value: 1.2, min: 0, max: 3, step: 0.01 },
+    roughness: { value: 0.05, min: 0.0, max: 1.0, step: 0.01 },
+    normalScale: { value: 0.05, min: 0.0, max: 1.0, step: 0.01 },
+    lightIntensity: { value: 25.0, min: 0.0, max: 100.0, step: 1.0 },
+    
   })
 
   return (
@@ -40,18 +44,28 @@ function App() {
       <Canvas shadows camera={{ position: [0, 2, 5], zoom: 1 }} gl={{ preserveDrawingBuffer: true }}>
         <color attach="background" args={['#f2f2f5']} />
         <Grid />
-
         <Suspense fallback={null}>
-          <MyText config={config} />
+          <TwistedText config={config} />
         </Suspense>
-        <Environment resolution={32}>
+        <Environment 
+           files="./Environments/envmap.hdr"
+           resolution={32}>
+
           <group rotation={[-Math.PI / 4, -0.3, 0]}>
-            <Lightformer intensity={20} rotation-x={Math.PI / 2} position={[0, 5, -9]} scale={[1, 1, 1]} />
+            <Lightformer 
+            intensity={10} 
+            rotation-x={Math.PI / 2} 
+            position={[0, 5, -9]} 
+            scale={[1, 1, 1]} />
           </group>
+         
         </Environment>
 
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
+        {/* <ambientLight> */}
+        <directionalLight 
+          position={[0, 0, 5]} 
+          intensity={config.lightIntensity}
+          />
         <OrbitControls
           autoRotateSpeed={-0.1}
           zoomSpeed={0.25}
