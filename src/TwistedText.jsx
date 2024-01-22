@@ -78,12 +78,9 @@ export default function MyText({ config }) {
   )
 
   useFrame((state, delta) => {
-    if (refMaterial.current.userData.shader) {
       refMaterial.current.userData.shader.uniforms.uTime.value += delta
       refDepthMaterial.current.uniforms.uTime.value += delta    
-    }
-    lightRef.current.position.y = Math.abs(Math.sin(state.clock.getElapsedTime()/4.0)) * 4.0 + .5
-    console.log(delta)
+      lightRef.current.position.y = Math.abs(Math.sin(state.clock.getElapsedTime()/4.0)) * 4.0 + .5
   })
 
   useLayoutEffect(() => {
