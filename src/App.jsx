@@ -5,6 +5,20 @@ import { useControls, Leva } from 'leva'
 import TwistedText from './TwistedText.jsx'
 import { Instance, OrbitControls, Instances, Stats, Environment, Lightformer } from '@react-three/drei'
 
+function Floor() {
+  return (
+      <mesh 
+      position = {[0, -1,0]}
+      rotation-x={-Math.PI / 2} receiveShadow>
+          <circleGeometry args={[10]} />
+          <meshStandardMaterial 
+          color={'white'}
+          />
+      </mesh>
+  )
+}
+
+
 const Grid = ({ number = 23, lineWidth = 0.026, height = 0.5 }) => (
   // Renders a grid and crosses as instances
   <Instances position={[0, -2, 0]}>
@@ -27,7 +41,7 @@ function App() {
     text: '  Christian Hohenbild  ',
     color: '#ffdc00',
     fontSize: { value: 1, min: 0.1, max: 2 },
-    fontDepth: { value: 0.03, min: 0.01, max: 3.5 },
+    fontDepth: { value: 0.005, min: 0.0001, max: 1.0, step: 0.0001 },
     uRadius: { value: 2.1, min: 0.1, max: 3 },
     uTwists: { value: 1, min: 0, max: 3, step: 0.01 },
     rotation: { value: 1.55, min: 0, max: 2*Math.PI, step: 0.05 },
@@ -41,13 +55,18 @@ function App() {
   return (
     <>
       <Leva collapsed />
-      <Canvas shadows camera={{ position: [0, 2, 5], zoom: 1 }} gl={{ preserveDrawingBuffer: true }}>
+      <Canvas 
+        shadows 
+        camera={{ position: [0, 2, 5], zoom: 1 }} 
+        gl={{ preserveDrawingBuffer: true }}>
+        
         <color attach="background" args={['#f2f2f5']} />
         <Grid />
+        <Floor />
         <Suspense fallback={null}>
           <TwistedText config={config} />
         </Suspense>
-        <Environment 
+        {/* <Environment 
            files="./Environments/envmap.hdr"
            resolution={32}>
 
@@ -59,11 +78,12 @@ function App() {
             scale={[1, 1, 1]} />
           </group>
          
-        </Environment>
+        </Environment> */}
 
         {/* <ambientLight> */}
         <directionalLight 
-          position={[0, 0, 5]} 
+          position={[0, 2, 3]} 
+          castShadow
           intensity={config.lightIntensity}
           />
         <OrbitControls
