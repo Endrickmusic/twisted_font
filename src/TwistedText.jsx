@@ -5,6 +5,8 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 import { TextureLoader } from 'three/src/loaders/TextureLoader.js'
 import { extend } from '@react-three/fiber'
+import { DirectionalLightHelper } from 'three'
+import { useHelper } from '@react-three/drei'
 import { RepeatWrapping, MeshDepthMaterial, RGBADepthPacking } from 'three';
 
 
@@ -15,6 +17,7 @@ export default function MyText({ config }) {
   const refMesh = useRef()
   const refMaterial = useRef()
   const lightRef = useRef()
+  useHelper(lightRef, DirectionalLightHelper, 1, "red");
   const refDepthMaterial = useRef()
 
 //   console.log(config, 'config!!!')
@@ -77,9 +80,10 @@ export default function MyText({ config }) {
   useFrame((state, delta) => {
     if (refMaterial.current.userData.shader) {
       refMaterial.current.userData.shader.uniforms.uTime.value += delta
-      refDepthMaterial.current.uniforms.uTime.value += delta
-      
+      refDepthMaterial.current.uniforms.uTime.value += delta    
     }
+    lightRef.current.position.y = Math.abs(Math.sin(state.clock.getElapsedTime()/4.0)) * 4.0 + .5
+    console.log(delta)
   })
 
   useLayoutEffect(() => {
