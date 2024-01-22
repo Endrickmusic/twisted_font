@@ -1,9 +1,10 @@
 import './styles.css'
-import React, { Suspense } from 'react'
-import { Canvas } from '@react-three/fiber'
+import React, { Suspense, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { useControls, Leva } from 'leva'
 import TwistedText from './TwistedText.jsx'
-import { Instance, OrbitControls, Instances, Stats, Environment, Lightformer } from '@react-three/drei'
+import { Instance, OrbitControls, Instances, Stats, Environment, Lightformer, SoftShadows } from '@react-three/drei'
+
 
 function Floor() {
   return (
@@ -37,6 +38,7 @@ const Grid = ({ number = 23, lineWidth = 0.026, height = 0.5 }) => (
 )
 
 function App() {
+
   const config = useControls('Text', {
     text: '  Christian Hohenbild  ',
     color: '#ffdc00',
@@ -61,6 +63,12 @@ function App() {
         gl={{ preserveDrawingBuffer: true }}>
         
         <color attach="background" args={['#f2f2f5']} />
+
+        <SoftShadows 
+        size= {10}
+        focus= {0}
+        samples= {10}
+        />
         <Grid />
         <Floor />
         <Suspense fallback={null}>
@@ -81,11 +89,7 @@ function App() {
         </Environment> */}
 
         {/* <ambientLight> */}
-        <directionalLight 
-          position={[0, 2, 3]} 
-          castShadow
-          intensity={config.lightIntensity}
-          />
+      
         <OrbitControls
           autoRotateSpeed={-0.1}
           zoomSpeed={0.25}

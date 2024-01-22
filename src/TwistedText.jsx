@@ -5,20 +5,22 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 import { TextureLoader } from 'three/src/loaders/TextureLoader.js'
 import { extend } from '@react-three/fiber'
-import { MeshTransmissionMaterial } from '@react-three/drei'
 import { RepeatWrapping, MeshDepthMaterial, RGBADepthPacking } from 'three';
 
 
 extend({ TextGeometry })
 
-
-
-
 export default function MyText({ config }) {
+
   const refMesh = useRef()
   const refMaterial = useRef()
+  const lightRef = useRef()
+  const refDepthMaterial = useRef()
+
 //   console.log(config, 'config!!!')
   const font = useLoader(FontLoader, './inter.json')
+  console.log(refMesh)   
+  console.log(refMaterial)   
 
   const texture = useLoader(RGBELoader, '/aerodynamics_workshop_1k.hdr')
   let geo = new TextGeometry(config.text, { font, 
@@ -51,13 +53,22 @@ export default function MyText({ config }) {
     depthPacking : RGBADepthPacking
   })
 
+  console.log(depthMaterial)   
+
+
   useEffect(
     (state, delta) => {
       if (refMaterial.current.userData.shader) {
         refMaterial.current.userData.shader.uniforms.uRadius.value = config.uRadius
         refMaterial.current.userData.shader.uniforms.uTwists.value = config.uTwists
         refMaterial.current.userData.shader.uniforms.uRotateSpeed.value = config.uRotateSpeed
-        refMesh.current.rotation.x = config.rotation       
+
+        refDepthMaterial.current.uniforms.uRadius.value = config.uRadius
+        refDepthMaterial.current.uniforms.uTwists.value = config.uTwists
+        refDepthMaterial.current.uniforms.uRotateSpeed.value = config.uRotateSpeed
+
+        refMesh.current.rotation.x = config.rotation 
+           
       }
     },
     [config]
@@ -66,7 +77,8 @@ export default function MyText({ config }) {
   useFrame((state, delta) => {
     if (refMaterial.current.userData.shader) {
       refMaterial.current.userData.shader.uniforms.uTime.value += delta
-      // refMesh.current.userData.customDepthMaterial.shader.uniforms.uTime.value += delta
+      refDepthMaterial.current.uniforms.uTime.value += delta
+      
     }
   })
 
@@ -264,11 +276,9 @@ export default function MyText({ config }) {
       '#include <output_fragment>',
       +`
       
-      // gl_FragColor = vec4(1.,0.,0.,1.);
-    //   gl_FragColor = vec4(vUv,0.,1.);
     `
     )
-    refMesh.current.userData.customDepthShader = shader
+    refDepthMaterial.current = shader
       
   }
     
@@ -280,6 +290,16 @@ export default function MyText({ config }) {
     normalM.repeat.set(1.5, 1.5); // adjust the values as needed
 
   const result = (
+    <group>
+
+    <directionalLight 
+          ref={lightRef}
+          position={[0, 5, 3]} 
+          castShadow
+          shadow-mapSize = {1024}
+          intensity={config.lightIntensity}
+          />
+   
     <mesh 
     ref={refMesh} 
     customDepthMaterial={depthMaterial}
@@ -297,23 +317,8 @@ export default function MyText({ config }) {
       normalMap={ normalM }
       normalScale={ config.normalScale }
       />
-
-      {/* <MeshTransmissionMaterial
-        ref={refMaterial}
-        // onBeforeCompile={onBeforeCompile}
-        attach="material"
-        background={texture}
-        reflectivity={0.5}
-        roughness={0}
-        transmission={0.6}
-        thickness={0.5}
-        color={'#ff9cf5'}
-        ior={0.7}
-        distortionScale = {1}
-          distortion = {1}
-          temporalDistortion = {0.1}
-      /> */}
     </mesh>
+    </group>
   )
   return result
 }
